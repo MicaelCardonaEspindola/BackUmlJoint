@@ -32,15 +32,13 @@ export const registrarUsuarios = async (
   correo,
   sexo,
   contrasena,
-  imagen = "https://friconix.com/png/fi-ctluxx-anonymous-user-circle-solid.png",
   telefono,
   id_rol
 ) => {
   const client = await pool.connect();
-  console.log(apellidos)
 
   const res = await pool.query(
-    "INSERT INTO USUARIO(ci, nombre, apellidos, correo, sexo, contrasena, imagen,telefono,id_rol) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+    "INSERT INTO USUARIO(ci, nombre, apellidos, correo, sexo, contrasena,telefono,id_rol) VALUES($1, $2, $3, $4, $5, $6, $7, $8)",
     [
       ci,
       nombre,
@@ -48,7 +46,6 @@ export const registrarUsuarios = async (
       correo,
       sexo,
       contrasena,
-      imagen,
       telefono,
       id_rol
     ]
@@ -66,20 +63,20 @@ export const updateUsuario = async (User) => {
     apellidos,
     correo,
     sexo,
-    imagen,
-    telefono
+    contrasena,
+    telefono,
   } = User;
 
   const client = await pool.connect();
   try {
     const response = await pool.query(
-      "UPDATE USUARIO SET ci = $1 , nombre = $2, apellidos = $3,correo = $4, sexo = $5, imagen = $6, telefono = $7 where ci = $8",
-      [ ci,
+      "UPDATE USUARIO SET ci = $1 , nombre = $2, apellidos = $3,correo = $4, sexo = $5, telefono = $6 where ci = $7",
+      [ 
         nombre,
         apellidos,
         correo,
         sexo,
-        imagen,
+        contrasena,
         telefono,
         ci]
     );
@@ -186,20 +183,6 @@ export const obtenerUsuarioPorSuCarnet = async (nombre) => {
   }
 };
 
-export const seLogeoPorPrimeraVez=async(ci)=>{
-  const client = await pool.connect();
-  try {
-  
-    const res = await pool.query(
-      "SELECT contrasena from usuario WHERE usuario.ci=$1",
-      [ci]);
-    client.release();
-    return res.rows[0];
-  } catch (error) {
-    console.error(error);
-    return error;
-  }
-}
 
 
 export const registrarMultiplesUsuarios= async (usuarios,cantUser)=>{

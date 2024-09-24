@@ -1,3 +1,4 @@
+import { validationResult } from "express-validator";
 import {
   obtenerCajeros,
   registrarUsuarios,
@@ -8,12 +9,10 @@ import {
   obtenerUsuarios,
   updateUsuario,
   deleteUser,
-  registrarMultiplesUsuarios,
-  seLogeoPorPrimeraVez
  
 } from "./user.models.js";
 import bcrypt from "bcrypt";
-import XLSX from 'xlsx'
+
 
 
 export const getUsuarios = async (req, res) => {
@@ -44,11 +43,16 @@ export const postUsuario = async (req, res) => {
       correo,
       sexo,
       contrasena,
-      imagen,
       telefono,
       id_rol
     } = req.body;
     let nombre = req.body.nombre;
+
+    const errores=validationResult(req);
+    if (!errores.isEmpty()) {
+      res.status(400).json({ ok:false ,errores: errores.array() });
+      return;
+    } 
 
     nombre = nombre?.toLowerCase().trim();
     if (await validarCorreosUnicos(correo)) {
@@ -64,10 +68,18 @@ export const postUsuario = async (req, res) => {
       correo,
       sexo,
       await encryptarContrasena(contrasena),
-      imagen,
       telefono,
       id_rol
-    ).then(() => res.status(201).send("Usuario registrado con exito!"));
+    ).then(() => res.json({
+      message: "Usuario registrado con exito!",
+      ci: ci,
+      nombre: nombre,
+      apellidos: apellidos,
+      correo: correo,
+      sexo: sexo,
+      telefono: telefono,
+      id_rol: id_rol
+    }));
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
@@ -125,13 +137,6 @@ export const patchContrasena = async (req, res) => {
       res.status(403).send(`El usuario con el ci : ${ci} no existe  `);
       return;
     }
-    const filtrarContra=await seLogeoPorPrimeraVez(ci)
-    console.log(filtrarContra.contrasena==antiguacontrasena);
-    if(filtrarContra.contrasena==antiguacontrasena){
-      await cambiarcontrasena(ci, await encryptarContrasena(nuevacontrasena));
-      res.status(200).send("La contrasena ha sido actualizada");
-      return;
-    }
     const match = await bcrypt.compare(
       antiguacontrasena,
       await constraseñaActual(ci)
@@ -153,20 +158,7 @@ const encryptarContrasena = async (contrasena) => {
   return newHash;
 };
 
-export const excelToJson= async(req,res)=>{
-try {
-const excel=XLSX.readFile(
-  req.file.path
-);
-const nombreHoja=excel.SheetNames;
-const usuarios=XLSX.utils.sheet_to_json(excel.Sheets[nombreHoja[0]])
-const cantidadUser=excel.Sheets[nombreHoja[0]];
-const numeroDeUsuarios= XLSX.utils.decode_range(cantidadUser['!ref']);
+export const renovarToken = async (req, res) => {
+  return res.status(200).json({ message: "Token renovado con exito!" });
+};
 
-const respuesta =await registrarMultiplesUsuarios(usuarios,numeroDeUsuarios.e.r-2)
-res.status(200).send(respuesta);
-} catch (error) {
-  res.status(500).send(error);
-}
-
-}

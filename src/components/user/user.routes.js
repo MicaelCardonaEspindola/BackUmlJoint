@@ -1,9 +1,10 @@
 import {Router} from "express"
-import { getCajeros, postUsuario,patchContrasena, getUsuarios, actualizarUsuario, eliminarUsuario, excelToJson } from "./user.controllers.js";
+import { getCajeros, postUsuario,patchContrasena, getUsuarios, actualizarUsuario, eliminarUsuario,renovarToken} from "./user.controllers.js";
 const routerUser = Router() ;
 import multer from "multer";
 import { checkAuth } from "../../middlewares/auth.js";
 import { authRole } from "../../middlewares/auth_role.js";
+import { validateCreate } from "../../validators/user.js";
 const upload = multer({ dest: 'uploads/' }); 
 
 
@@ -18,12 +19,12 @@ routerUser.get('/cook', (req,res) =>{
 routerUser.get('/cajero', getCajeros);
 
 
-routerUser.get('/',checkAuth,authRole(['estudiante']) ,getUsuarios)
+routerUser.get('/',[checkAuth,authRole(['ADMIN'])] ,getUsuarios)
 routerUser.put('/',checkAuth,actualizarUsuario)
-routerUser.post('/registro',postUsuario)
+routerUser.post('/registro',validateCreate,postUsuario)
 routerUser.patch('/cambiarClave',patchContrasena)
 routerUser.delete('/:ci',checkAuth,eliminarUsuario )
-routerUser.post('/multiRegistro',upload.single('excel'),checkAuth,excelToJson)
+routerUser.get('/renew',checkAuth, renovarToken);
 
 
 export default routerUser; 

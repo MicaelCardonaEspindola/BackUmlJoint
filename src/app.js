@@ -12,7 +12,7 @@ export class Server {
     this.port = process.env.PORT;
     this.portSocket = process.env.PORT_SOCKET;
     this.server = http.createServer(this.app);
-    this.routerMain = "/api-v1";
+    this.routerMain = "/api-v1"; 
     //configuracion del socket
 
     this.io = new socketio(this.server, {
@@ -21,7 +21,7 @@ export class Server {
         methods: ["GET", "POST"]
       }
     });
-  }
+  } 
   middlewares() {
     this.app.use(cors());
     this.app.use(express.json());
