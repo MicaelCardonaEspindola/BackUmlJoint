@@ -15,13 +15,13 @@ export const loginUser = async (req, res) => {
     ci = ci?.toLowerCase().trim() ; 
     const result = await obtenerUsuarioPorSuCarnet(ci);
     if (!!!result) {
-      return res.status(404).json({ message: "El usuario no se encontro!" , success:false}); // Not Found
+      return res.status(201).json({ message: "El usuario no se encontro!" , success:false}); // Not Found
     }
     try {
       const checkPassword = await bcrypt.compare(contrasena, result.contrasena);
 
       if (!checkPassword) {
-        return res.status(401).json({ message: "contrasena incorrecta!" ,  success:false}); // Unauthorized
+        return res.status(201).json({ message: "contrasena incorrecta!" ,  success:false}); // Unauthorized
       }
 
       const token = jwt.sign(
