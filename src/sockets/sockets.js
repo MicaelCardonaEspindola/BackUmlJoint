@@ -5,9 +5,7 @@ export class Sockets {
 
   constructor(io) { 
     this.io = io;
-
     this.socketEvents();
-     
   } 
 
   socketEvents() {
@@ -23,24 +21,26 @@ export class Sockets {
         console.log(`Usuario conectado: ${ci}`);
 
         // Obtener el ID de la sala desde los parámetros de la conexión
-        const room = await obtenerLosUsuariosDeUnaSalaModelByCi(ci);
-        console.log(room)
-
-
-
-        // Unir al usuario a la sala correspondiente
-        socket.join(room.id_sala);
-        console.log(`Usuario ${ci} unido a la sala ${room.id_sala}`);
-
+        socket.on('join-room', async (room) => {
+         // const room = await obtenerLosUsuariosDeUnaSalaModelByCi(ci);
+            socket.join(room);
+            console.log(`Usuario ${ci} unido a la sala ${room}`);
+        });
         // Escuchar eventos de 'diagram-update' y hacer broadcast a la sala
-        socket.on('diagram-update', (data) => {
-            socket.to(room.id_sala).emit('diagram-update', data);
+        socket.on('diagram-update', (data,room) => {
+            socket.to(room).emit('diagram-update', data);
+        });
+
+        // Escuchar evento para dejar la sala
+        socket.on('leave-room', (room) => {
+            socket.leave(room);
+            console.log(`Usuario ${ci} dejó la sala ${room.id_sala}`);
         });
 
         // Desconectar usuario
         socket.on('disconnect', () => {
-            console.log(`Usuario ${ci} desconectado de la sala ${room.id_sala}`);
+            console.log(`Usuario ${ci} desconectado`);
         });
     });
-}
+  }
 }
