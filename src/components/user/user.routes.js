@@ -1,11 +1,10 @@
 import {Router} from "express"
 import { getCajeros, postUsuario,patchContrasena, getUsuarios, actualizarUsuario, eliminarUsuario,renovarToken} from "./user.controllers.js";
 const routerUser = Router() ;
-import multer from "multer";
 import { checkAuth } from "../../middlewares/auth.js";
 import { authRole } from "../../middlewares/auth_role.js";
 import { validateCreate } from "../../validators/user.js";
-const upload = multer({ dest: 'uploads/' }); 
+
 
 
 routerUser.get('/admin', (req,res) =>{
