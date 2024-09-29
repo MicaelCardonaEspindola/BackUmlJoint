@@ -1,5 +1,3 @@
-import { obtenerLosUsuariosDeUnaSalaModelByCi } from "../components/sala/sala.models.js";
-import { getUsuariosById } from "../components/user/user.controllers.js";
 import { obtenerUsuariosById } from "../components/user/user.models.js";
 import { validateJsonWebToken } from "../helpers/validateJsonWebToken.js";
 
