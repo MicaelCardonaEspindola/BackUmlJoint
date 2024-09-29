@@ -183,6 +183,20 @@ export const obtenerUsuarioPorSuCarnet = async (nombre) => {
   }
 };
 
+export const obtenerUsuariosById = async (ci) => {
+  try {
+    const client = await pool.connect();
+    const
+    res = await pool.query("SELECT * FROM usuario WHERE ci=$1", [ci]);
+    client.release();
+    return res.rows;
+  }
+  catch (error) {
+    console.error(error);
+    return error;
+  }
+}
+
 
 
 export const registrarMultiplesUsuarios= async (usuarios,cantUser)=>{

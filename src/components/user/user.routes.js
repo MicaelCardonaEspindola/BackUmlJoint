@@ -1,5 +1,5 @@
 import {Router} from "express"
-import { getCajeros, postUsuario,patchContrasena, getUsuarios, actualizarUsuario, eliminarUsuario,renovarToken} from "./user.controllers.js";
+import { getCajeros, postUsuario,patchContrasena, getUsuarios, actualizarUsuario, eliminarUsuario,renovarToken,getUsuariosById} from "./user.controllers.js";
 const routerUser = Router() ;
 import { checkAuth } from "../../middlewares/auth.js";
 import { authRole } from "../../middlewares/auth_role.js";
@@ -19,6 +19,7 @@ routerUser.get('/cajero', getCajeros);
 
 
 routerUser.get('/',[checkAuth,authRole(['ADMIN'])] ,getUsuarios)
+routerUser.get('/:ci',getUsuariosById)
 routerUser.put('/',checkAuth,actualizarUsuario)
 routerUser.post('/registro',validateCreate,postUsuario)
 routerUser.patch('/cambiarClave',patchContrasena)

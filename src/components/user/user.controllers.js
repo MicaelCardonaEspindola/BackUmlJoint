@@ -9,9 +9,20 @@ import {
   obtenerUsuarios,
   updateUsuario,
   deleteUser,
+  obtenerUsuariosById,
  
 } from "./user.models.js";
 import bcrypt from "bcrypt";
+
+export const getUsuariosById = async (req, res) => {
+  const { ci } = req.params;
+  try {
+    const response = await obtenerUsuariosById(ci);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
 
 
 

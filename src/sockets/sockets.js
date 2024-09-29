@@ -1,4 +1,6 @@
 import { obtenerLosUsuariosDeUnaSalaModelByCi } from "../components/sala/sala.models.js";
+import { getUsuariosById } from "../components/user/user.controllers.js";
+import { obtenerUsuariosById } from "../components/user/user.models.js";
 import { validateJsonWebToken } from "../helpers/validateJsonWebToken.js";
 
 export class Sockets {
@@ -26,7 +28,7 @@ export class Sockets {
             console.log(`Usuario ${ci} unido a la sala ${room}`);
 
             // Mostrar los usuarios conectados a la sala
-            const usuariosEnSala = this.obtenerUsuariosEnSala(room);
+            const usuariosEnSala = await this.obtenerUsuariosEnSala(room);
             console.log(`Usuarios en la sala ${room}:`, usuariosEnSala);
 
             // Enviar la lista de usuarios conectados a todos los miembros de la sala
@@ -39,12 +41,12 @@ export class Sockets {
         });
 
         // Escuchar evento para dejar la sala
-        socket.on('leave-room', (room) => {
+        socket.on('leave-room', async (room) => {
             socket.leave(room);
             console.log(`Usuario ${ci} dejó la sala ${room}`);
 
             // Actualizar la lista de usuarios conectados
-            const usuariosEnSala = this.obtenerUsuariosEnSala(room);
+            const usuariosEnSala = await this.obtenerUsuariosEnSala(room); 
             this.io.to(room).emit('usuarios-conectados', usuariosEnSala);
         });
 
@@ -63,23 +65,25 @@ export class Sockets {
   }
 
   // Método para obtener los usuarios conectados a una sala
-  obtenerUsuariosEnSala(room) {
-    const usuarios = [];
+  async obtenerUsuariosEnSala(room) {
     const roomSockets = this.io.sockets.adapter.rooms.get(room);
-
-    if (roomSockets) {
-      roomSockets.forEach(socketId => {
-        const socket = this.io.sockets.sockets.get(socketId);
-        if (socket) {
-          // Obtener el ID del cliente (ci) desde el socket
-          const [valido, ci] = validateJsonWebToken(socket.handshake.query['x-token']);
-          if (valido) {
-            usuarios.push(ci); // Añadir el ci del usuario a la lista
-          }
-        }
-      });
-    }
     
-    return usuarios;
+    if (!roomSockets) {
+      return [];
+    }
+  
+    const socketPromises = Array.from(roomSockets).map(async (socketId) => {
+      const socket = this.io.sockets.sockets.get(socketId);
+      if (socket) {
+        const [valido, ci] = validateJsonWebToken(socket.handshake.query['x-token']);
+        if (valido) {
+          return obtenerUsuariosById(ci);
+        }
+      }
+      return null;
+    });
+  
+    const usuarios = await Promise.all(socketPromises);
+    return usuarios.filter(usuario => usuario !== null);
   }
 }
