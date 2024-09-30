@@ -5,6 +5,7 @@ export class Sockets {
 
   constructor(io) { 
     this.io = io;
+    this.locks = {}; // Añadir un objeto para gestionar los bloqueos
     this.socketEvents();
   } 
 
@@ -20,7 +21,7 @@ export class Sockets {
 
         console.log(`Usuario conectado: ${ci}`);
 
-        // Obtener el ID de la sala desde los parámetros de la conexión
+        // Manejar eventos de 'join-room'
         socket.on('join-room', async (room) => {
             socket.join(room);
             console.log(`Usuario ${ci} unido a la sala ${room}`);
@@ -33,18 +34,51 @@ export class Sockets {
             this.io.to(room).emit('usuarios-conectados', usuariosEnSala);
         });
 
+        // Manejar solicitudes de bloqueo
+        socket.on('request-lock', (data) => {
+            const { cellId, userId, room } = data;
+
+            // Verificar si el nodo ya está bloqueado
+            if (this.locks[cellId]) {
+                // Si el nodo está bloqueado, denegar la solicitud
+                socket.emit('lock-denied', { cellId });
+            } else {
+                // Si no está bloqueado, asignar el bloqueo al usuario
+                this.locks[cellId] = userId;
+                console.log(`Bloqueo otorgado para ${cellId} por el usuario ${userId}`);
+
+                // Notificar a todos en la sala que el nodo ha sido bloqueado
+                this.io.to(room).emit('lock-granted', { cellId, userId });
+            }
+        });
+
+        // Manejar la liberación de bloqueos
+        socket.on('release-lock', (data) => {
+            const { cellId, userId, room } = data;
+
+            // Verificar si el bloqueo pertenece al usuario
+            if (this.locks[cellId] === userId) {
+                // Eliminar el bloqueo
+                delete this.locks[cellId];
+                console.log(`Bloqueo liberado para ${cellId} por el usuario ${userId}`);
+
+                // Notificar a todos en la sala que el nodo ha sido desbloqueado
+                this.io.to(room).emit('lock-released', { cellId });
+            }
+        });
+
         // Escuchar eventos de 'diagram-update' y hacer broadcast a la sala
         socket.on('diagram-update', (data, room) => {
             socket.to(room).emit('diagram-update', data);
         });
 
-        // Escuchar evento para dejar la sala
+        // Manejar el evento para dejar la sala
         socket.on('leave-room', async (room) => {
             socket.leave(room);
             console.log(`Usuario ${ci} dejó la sala ${room}`);
 
             // Actualizar la lista de usuarios conectados
-            const usuariosEnSala = await this.obtenerUsuariosEnSala(room); 
+            const usuariosEnSala = await this.obtenerUsuariosEnSala(room);
             this.io.to(room).emit('usuarios-conectados', usuariosEnSala);
         });
 
