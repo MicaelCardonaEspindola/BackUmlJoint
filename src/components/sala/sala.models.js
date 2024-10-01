@@ -74,12 +74,12 @@ export const crearSalaModel = async (nombre, capacidad, descripcion, es_privada,
     }
 };
 
-export const actualizarSalaModel = async (id, nombre, capacidad, descripcion, es_privada) => {
+export const actualizarSalaModel = async (id ,diagrama) => {
   try {
       const client = await pool.connect();
       const res = await client.query(
-          "UPDATE sala SET nombre = $1, capacidad = $2, descripcion = $3, es_privada = $4 WHERE id = $5",
-          [ nombre, capacidad, descripcion, es_privada,id]
+          "UPDATE sala SET diagrama=$2 WHERE id = $1",
+          [id,diagrama]
       );
       client.release();
       return res;
@@ -102,7 +102,7 @@ export const eliminarSalaModel = async (id) => {
 
 // Funciones para la relación usuario-sala
 
-export const agregarUsuarioASalaModel = async (ci_usuario, id_sala, isHost) => {
+/*export const agregarUsuarioASalaModel = async (ci_usuario, id_sala, isHost) => {
     try {
         const client = await pool.connect();
         await client.query(
@@ -114,7 +114,22 @@ export const agregarUsuarioASalaModel = async (ci_usuario, id_sala, isHost) => {
         console.error(error);
         throw error;
     }
-};
+};*/
+
+export const isHostModel = async (ci_usuario, id_sala) => {
+    try {
+        const client = await pool.connect();
+        const response = await client.query(
+            "select exists(select ci_host from sala where ci_host=$1 and id=$2 ) as ishost ",
+            [ci_usuario, id_sala]
+        );
+        client.release();
+        return response.rows[0];
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
 
 

@@ -1,11 +1,11 @@
 import {
 
   actualizarSalaModel,
-  agregarUsuarioASalaModel,
   crearSalaModel,
   eliminarSalaModel,
   eliminarUsuarioDeSalaModel,
   getSalasByIdModel,
+  isHostModel,
   obtenerLosUsuariosDeUnaSalaModel,
   obtenerLosUsuariosDeUnaSalaModelByCi,
   obtenerSalasModel,
@@ -75,19 +75,13 @@ export const actualizarSala = async (req, res) => {
   try {
     const {id}= req.params;
     const {
-      nombre,
-      capacidad,
-      descripcion,
-      es_privada,
+       diagrama
     } = req.body;
 
 
     await actualizarSalaModel(
       id,
-      nombre,
-      capacidad,
-      descripcion,
-      es_privada,
+      diagrama
       )
 
       res.status(201).send("Usuario actualizado con exito!");
@@ -97,7 +91,7 @@ export const actualizarSala = async (req, res) => {
   }
 };
 
-export const agregarUsuarioASala = async (req, res) => {
+/*export const agregarUsuarioASala = async (req, res) => {
   try {
       const { ci_usuario, id_sala, isHost } = req.body;
       await agregarUsuarioASalaModel(ci_usuario, id_sala,isHost);
@@ -106,7 +100,19 @@ export const agregarUsuarioASala = async (req, res) => {
       console.error(error);
       res.status(500).send(error);
   }
-};
+};*/
+
+export const isHost = async (req, res) => {
+  const { ci_usuario, id_sala } = req.params;
+  try {
+    const response = await isHostModel(ci_usuario, id_sala);
+    res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+
+}
 
 export const eliminarSala = async (req, res) => {
   const { id } = req.params;
