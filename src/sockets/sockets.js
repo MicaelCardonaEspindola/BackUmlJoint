@@ -28,7 +28,7 @@ export class Sockets {
 
             // Mostrar los usuarios conectados a la sala
             const usuariosEnSala = await this.obtenerUsuariosEnSala(room);
-            console.log(`Usuarios en la sala ${room}:`, usuariosEnSala);
+
 
             // Enviar la lista de usuarios conectados a todos los miembros de la sala
             this.io.to(room).emit('usuarios-conectados', usuariosEnSala);

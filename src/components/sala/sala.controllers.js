@@ -58,13 +58,10 @@ export const getSalaById= async (req, res) => {
 
 export const postSala = async (req, res) => {
   try {
-    const { nombre, capacidad, descripcion, es_privada, ci_usuario, isHost } = req.body;
+    const { nombre, capacidad, descripcion, es_privada, ci_host } = req.body;
 
     // Crear la sala
-    const nuevaSala = await crearSalaModel(nombre, capacidad, descripcion, es_privada);
-
-    // Agregar el usuario creador como el host
-    await agregarUsuarioASalaModel(ci_usuario, nuevaSala.id, isHost);
+    const nuevaSala = await crearSalaModel(nombre, capacidad, descripcion, es_privada, ci_host);
 
     res.json({ message: "Sala registrada con éxito!", sala: nuevaSala });
   } catch (error) {

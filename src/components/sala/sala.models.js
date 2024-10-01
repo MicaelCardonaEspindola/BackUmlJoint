@@ -59,12 +59,12 @@ export const getSalasByIdModel = async (id) => {
     }
 };
 
-export const crearSalaModel = async (nombre, capacidad, descripcion, es_privada) => {
+export const crearSalaModel = async (nombre, capacidad, descripcion, es_privada,ci_host) => {
     try {
         const client = await pool.connect();
         const res = await client.query(
-            "INSERT INTO sala (nombre, capacidad, descripcion, es_privada) VALUES ($1, $2, $3, $4) RETURNING *",
-            [nombre, capacidad, descripcion, es_privada]
+            "INSERT INTO sala (nombre, capacidad, descripcion, es_privada, ci_host) VALUES ($1, $2, $3, $4,$5) RETURNING *",
+            [nombre, capacidad, descripcion, es_privada,ci_host]
         );
         client.release();
         return res.rows[0]; // Retorna la sala recién creada
