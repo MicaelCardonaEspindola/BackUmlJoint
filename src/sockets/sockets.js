@@ -15,16 +15,16 @@ export class Sockets {
         const [valido, ci] = validateJsonWebToken(socket.handshake.query['x-token']);
 
         if (!valido) {
-            console.log('No Autenticado');
             return socket.disconnect();
         }
 
-        console.log(`Usuario conectado: ${ci}`);
+       // console.log(`Usuario conectado: ${ci}`);
+        socket.join(ci);
 
         // Manejar eventos de 'join-room'
         socket.on('join-room', async (room) => {
             socket.join(room);
-            console.log(`Usuario ${ci} unido a la sala ${room}`);
+           // console.log(`Usuario ${ci} unido a la sala ${room}`);
 
             // Mostrar los usuarios conectados a la sala
             const usuariosEnSala = await this.obtenerUsuariosEnSala(room);
@@ -45,7 +45,7 @@ export class Sockets {
             } else {
                 // Si no está bloqueado, asignar el bloqueo al usuario
                 this.locks[cellId] = userId;
-                console.log(`Bloqueo otorgado para ${cellId} por el usuario ${userId}`);
+             //   console.log(`Bloqueo otorgado para ${cellId} por el usuario ${userId}`);
 
                 // Notificar a todos en la sala que el nodo ha sido bloqueado
                 this.io.to(room).emit('lock-granted', { cellId, userId });
@@ -60,7 +60,7 @@ export class Sockets {
             if (this.locks[cellId] === userId) {
                 // Eliminar el bloqueo
                 delete this.locks[cellId];
-                console.log(`Bloqueo liberado para ${cellId} por el usuario ${userId}`);
+            //    console.log(`Bloqueo liberado para ${cellId} por el usuario ${userId}`);
 
                 // Notificar a todos en la sala que el nodo ha sido desbloqueado
                 this.io.to(room).emit('lock-released', { cellId });
@@ -75,16 +75,29 @@ export class Sockets {
         // Manejar el evento para dejar la sala
         socket.on('leave-room', async (room) => {
             socket.leave(room);
-            console.log(`Usuario ${ci} dejó la sala ${room}`);
+          //  console.log(`Usuario ${ci} dejó la sala ${room}`);
 
             // Actualizar la lista de usuarios conectados
             const usuariosEnSala = await this.obtenerUsuariosEnSala(room);
             this.io.to(room).emit('usuarios-conectados', usuariosEnSala);
         });
 
+        socket.on('enviar-invitacion', async (data) => {
+            const { de,para, mensaje } = data;
+         //   console.log(`Enviando invitación a ${para} con mensaje: ${mensaje}`);
+            const existeUsuario = await obtenerUsuariosById(para);
+            
+            if (!existeUsuario) {
+                return socket.emit('error', 'El usuario no existe revise el ci');
+            }
+          //  console.log('llegue aqui',existeUsuario)
+            this.io.to(para).emit('enviar-invitacion', mensaje); 
+        });
+
+
         // Desconectar usuario
         socket.on('disconnect', () => {
-            console.log(`Usuario ${ci} desconectado`);
+          //  console.log(`Usuario ${ci} desconectado`);
 
             // Actualizar la lista de usuarios conectados al desconectarse
             const rooms = Array.from(socket.rooms); // Salas a las que estaba unido
