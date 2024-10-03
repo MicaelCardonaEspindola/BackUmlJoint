@@ -6,20 +6,8 @@ import { authRole } from "../../middlewares/auth_role.js";
 import { validateCreate } from "../../validators/user.js";
 
 
-
-routerUser.get('/admin', (req,res) =>{
-    res.send("admin");
-});
-
-routerUser.get('/cook', (req,res) =>{
-    res.send("cook");
-});
-
-routerUser.get('/cajero', getCajeros);
-
-
-routerUser.get('/',[checkAuth,authRole(['ADMIN'])] ,getUsuarios)
-routerUser.get('/:ci',getUsuariosById)
+routerUser.get('/',[checkAuth] ,getUsuarios)
+routerUser.get('/:ci',checkAuth,getUsuariosById)
 routerUser.put('/',checkAuth,actualizarUsuario)
 routerUser.post('/registro',validateCreate,postUsuario)
 routerUser.patch('/cambiarClave',patchContrasena)
