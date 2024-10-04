@@ -5,6 +5,9 @@ import { checkAuth } from "../../middlewares/auth.js";
 import { authRole } from "../../middlewares/auth_role.js";
 import { validateCreate } from "../../validators/user.js";
 
+routerUser.get('/cajeros', (req, res) => {
+  res.send('Hola Mundo');
+});
 
 routerUser.get('/',[checkAuth] ,getUsuarios)
 routerUser.get('/:ci',checkAuth,getUsuariosById)

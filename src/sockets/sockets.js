@@ -24,7 +24,7 @@ export class Sockets {
         // Manejar eventos de 'join-room'
         socket.on('join-room', async (room) => {
             socket.join(room);
-            console.log(`Usuario ${ci} unido a la sala ${room}`);
+          //  console.log(`Usuario ${ci} unido a la sala ${room}`);
 
             // Mostrar los usuarios conectados a la sala
             const usuariosEnSala = await this.obtenerUsuariosEnSala(room);
@@ -58,7 +58,7 @@ export class Sockets {
 
             // Verificar si el bloqueo pertenece al usuario
             if (this.locks[cellId] === userId) {
-                // Eliminar el bloqueo
+                // Eliminar el bloqueo si pertenece al usuario
                 delete this.locks[cellId];
             //    console.log(`Bloqueo liberado para ${cellId} por el usuario ${userId}`);
 
