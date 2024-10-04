@@ -89,6 +89,21 @@ export const actualizarSalaModel = async (id ,diagrama) => {
   }
 };
 
+export const actualizarSalaModel2 = async (id ,nombre,descripcion) => {
+    try {
+        const client = await pool.connect();
+        const res = await client.query(
+            "UPDATE sala SET nombre=$2, descripcion=$3 WHERE id = $1",
+            [id,nombre,descripcion]
+        );
+        client.release();
+        return res;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+  };
+
 export const eliminarSalaModel = async (id) => {
   try {
       const client = await pool.connect();

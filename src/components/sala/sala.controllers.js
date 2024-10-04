@@ -1,6 +1,7 @@
 import {
 
   actualizarSalaModel,
+  actualizarSalaModel2,
   crearSalaModel,
   eliminarSalaModel,
   eliminarUsuarioDeSalaModel,
@@ -82,6 +83,28 @@ export const actualizarSala = async (req, res) => {
     await actualizarSalaModel(
       id,
       diagrama
+      )
+
+      res.status(201).send("Usuario actualizado con exito!");
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
+export const actualizarSala2 = async (req, res) => {
+  try {
+    const {id}= req.params;
+    const {
+       nombre,
+       descripcion
+    } = req.body;
+
+
+    await actualizarSalaModel2(
+      id,
+      nombre,
+      descripcion
       )
 
       res.status(201).send("Usuario actualizado con exito!");
